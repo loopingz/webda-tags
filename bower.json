@@ -1,0 +1,18 @@
+{
+  "name": "webda-tags",
+  "description": "A tag selecter component",
+  "main": "webda-tags.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-input": "~1.1.11",
+    "paper-item": "~1.2.1",
+    "paper-menu": "~1.2.2",
+    "paper-spinner": "~1.2.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

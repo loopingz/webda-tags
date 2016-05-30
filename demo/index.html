@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+  <head>
+    <title>webda-tags demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../webda-tags.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+
+    <div class="vertical-section-container centered">
+      <h3>webda-tags with suggestions and value</h3>
+      <demo-snippet>
+        <template>
+          <webda-tags multiple suggestions=["Apple","Banana","Peach"] value=["Apple","Peach"]></webda-tags>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>webda-tags with allowCreate and multiple</h3>
+      <demo-snippet>
+        <template>
+          <webda-tags allow-create multiple></webda-tags>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>webda-tags with suggestions and multiple</h3>
+      <demo-snippet>
+        <template>
+          <webda-tags multiple suggestions=["Apple","Banana","Peach"]></webda-tags>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>webda-tags with suggestions</h3>
+      <demo-snippet>
+        <template>
+          <webda-tags suggestions=["Apple","Banana","Peach"]></webda-tags>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <div class="vertical-section-container centered">
+      <h3>webda-tags with asynchronous suggestions</h3>
+      <demo-snippet>
+        <template>
+          <!-- Return ["Apple", "Banana", Pear", "Peach"] -->
+          <webda-tags async-suggestions></webda-tags>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <script>
+      window.addEventListener('webda-tags-suggestions-update', function(evt) {
+        var suggestions = ["Apple", "Banana", "Peach", "Pear"];
+        // auto-binding template is ready.
+        setTimeout(function() {
+          let res = [];
+          for (let i in suggestions) {
+            if (suggestions[i].indexOf(evt.detail) === 0) {
+              res.push(suggestions[i]);
+            }
+          }
+          evt.target.setSuggestions(res);
+        }, 3000);
+      });
+    </script>
+  </body>
+</html>
