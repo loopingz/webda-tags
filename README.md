@@ -6,7 +6,7 @@ JSON Schema display components for [Webda.io](http://github.com/loopingz/webda.g
 
 [http://webda.io](http://webda.io)
 
-[Demo](http://loopingz.github.io/webda-tags/webda-tags/demo/)
+[Demo](http://loopingz.github.io/webda-tags/components/webda-tags/demo/)
 
 ## Documentation
 
