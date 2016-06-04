@@ -1,10 +1,19 @@
+sudo: required
+dist: trusty
 language: node_js
 node_js:
   - "0.12"
+addons:
+  firefox: "latest"
 before_install:
+  - "sudo apt-get update"
+  - "sudo apt-get install -y libappindicator1 fonts-liberation"
+  - "wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+  - "sudo dpkg -i google-chrome*.deb"
   - "npm install -g bower"
   - "bower install"
   - "npm install -g web-component-tester"
   - "export DISPLAY=:99.0"
+  - "export CHROME_BIN=/usr/bin/google-chrome"
   - "sh -e /etc/init.d/xvfb start"
 script: "wct"
