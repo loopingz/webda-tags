@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
     <link rel="import" href="../webda-tags.html">
     <link rel="import" href="../webda-tag-item.html">
@@ -16,7 +17,7 @@
 
     <test-fixture id="basic">
       <template>
-        <webda-tags></webda-tags>
+        <webda-tags suggestions=["Apple","Banana","Pear","Peach"]></webda-tags>
       </template>
     </test-fixture>
 
@@ -34,9 +35,16 @@
     <script>
       suite('webda-tags', function() {
 
-        test('instantiating the element works', function() {
+        test('instantiating the element works and filter suggestions', function(done) {
           let element = fixture('basic');
           assert.equal(element.is, 'webda-tags');
+          let paperInput = Polymer.dom(element.root).querySelector('paper-input');
+          paperInput.value = 'P';
+          flush(function() {
+            let menuItems = Polymer.dom(element.root).querySelectorAll('paper-item');
+            assert.equal(menuItems.length, 2);
+            done();
+          });
         });
 
       });
