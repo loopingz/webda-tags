@@ -11,7 +11,8 @@
     "paper-input": "~1.1.11",
     "paper-item": "~1.2.1",
     "paper-menu": "~1.2.2",
-    "paper-spinner": "~1.2.0"
+    "paper-spinner": "~1.2.0",
+    "iron-dropdown": "PolymerElements/iron-dropdown#~1.4.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

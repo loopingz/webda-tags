@@ -1,9 +1,10 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 <link rel="import" href="../paper-item/paper-item.html">
-<link rel="import" href="webda-tag-item.html">
+<link rel="import" href="webda-tags-list.html">
 <dom-module id="webda-tags">
   <style is="custom-style" include="shared-styles"></style>
   <style type="text/css" media="screen">
@@ -12,9 +13,6 @@
         padding: 0;
         padding-top: 10px;
         list-style: none;
-    }
-    .hidden {
-      display: none;
     }
     ul#item_list {
         display: block;
@@ -97,36 +95,39 @@
     /deep/ .floated-label-placeholder {
       display: none;
     }
+    paper-spinner {
+      height: 20px;
+      width: 20px;
+      --paper-spinner-stroke-width: 2px;
+    }
   </style>
   <template>
       <ul id="item_list" style="width: {{options.box_width}};">
         <label hidden$="[[!label]]">[[label]]</label>
           <template is="dom-if" if="[[multiple]]">
-            <template id="tagsList" is="dom-repeat" items="{{value}}">
-                <webda-tag-item value="{{item}}"></webda-tag-item>
-            </template>
+            <webda-tags-list tags="[[value]]"></webda-tags-list>
           </template>
+          
           <li id="item_entry">
-              <div style="line-height: {{options.box_height}};">
-                  <paper-input id="itemInput"
-                      contenteditable="true"
-                      on-keydown="_keydownHandler"
-                      on-keyup="_keyupHandler"
-                      tabindex="0"
-                      placeholder="[[placeholder]]"
-                      on-blur="_inputLostFocus"
-                      on-focus="_inputHasFocus">
-                  </paper-input>
-              </div>
-              <paper-menu id="suggestionDropdown" class="dropdown-content hidden">
-                <template is="dom-if" if="[[loading]]">
-                  <paper-spinner alt="Loading results" active="[[loading]]"></paper-spinner>
-                </template>
+            <paper-input id="itemInput"
+              contenteditable="true"
+              on-keydown="_keydownHandler"
+              on-keyup="_keyupHandler"
+              tabindex="0"
+              placeholder="[[placeholder]]">
+              <template is="dom-if" if="[[loading]]">
+                <paper-spinner alt="Loading results" active="[[loading]]" suffix></paper-spinner>
+              </template>
+            </paper-input>
+            <iron-dropdown id="menu" no-auto-focus vertical-offset=40>
+              <paper-menu id="suggestionDropdown" class="dropdown-content">
                 <template id="dropdownContent" is="dom-repeat" filter="_suggestionFilter" items="{{suggestions}}">
                   <paper-item on-tap="_suggestionTapped" value="{{item}}">{{item}}</paper-item>
                 </template>
               </paper-menu>
+            </iron-dropdown>
           </li>
+          
       </ul>
   </template>
 
@@ -190,7 +191,7 @@
         allowSpace: {
           type: Boolean,
           value: false
-        }
+        },
       },
       // Fires when the "<webda-tags>" has been fully prepared
       ready: function() {
@@ -203,16 +204,6 @@
             this.$.itemInput.value = this.value;
           }
         }
-        this.addEventListener('webda-tags-remove-item', function(evt) {
-          this._removeTag(evt.detail);
-        });
-      },
-
-      /**
-       * Set focus to the input when tapped
-       */
-      elementTapped: function() {
-        this._setFocus();
       },
 
       _suggestionTapped: function(event) {
@@ -233,15 +224,7 @@
           this.$.itemInput.value = item;
         }
         this._resetSuggestions();
-      },
-      _removeTag: function(item) {
-        this.$.suggestionDropdown.selected = undefined;
-        var index = this.value.indexOf(item);
-        if (index < 0) {
-          return;
-        }
-        this.splice('value',index, 1);
-        this._resetSuggestions();
+        this.$.menu.close();
       },
       _suggestionsFilter: function() {
         var result = [];
@@ -271,31 +254,14 @@
         return item.indexOf(this.$.itemInput.value) === 0;
       },
 
-      _hideDropdown: function() {
-        this.hideDropdownTimeout = this.async(function() {
-          this.$.suggestionDropdown.toggleClass('hidden', true);
-          this.hideDropdownTimeout = undefined;
-        }.bind(this), 50);
-      },
-      _inputHasFocus: function() {
-        this.setAttribute('focused', 'true');
-        this._updateDropdown();
-      },
-      _inputLostFocus: function() {
-        this.removeAttribute('focused');
-        this._hideDropdown();
-      },
       _updateDropdown: function() {
         if (this.suggestions === undefined || (this.suggestions.length === 0 && !this.loading)) {
-          this._hideDropdown();
-          return;
+          //this._hideDropdown();
+          this.$.menu.close();
+        } else {
+          this.$.menu.open();
         }
-        if (this.hideDropdownTimeout !== undefined) {
-          this.cancelAsync(this.hideDropdownTimeout);
-          this.hideDropdownTimeout = undefined;
-        }
-        this.$.dropdownContent.render();
-        this.$.suggestionDropdown.toggleClass('hidden', false);
+        this._resetSuggestions();
       },
 
       _keydownHandler: function(event) {
@@ -408,9 +374,9 @@
         this._updateDropdown();
       },
       _resetSuggestions: function() {
-        this.$.suggestionDropdown.toggleClass('hidden', true);
+        this.$.dropdownContent.render();
+        this.$.menu.refit();
       },
-
       _setFocus: function() {
         this.$.itemInput.focus();
       }
