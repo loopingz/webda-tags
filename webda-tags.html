@@ -113,6 +113,7 @@
               contenteditable="true"
               on-keydown="_keydownHandler"
               on-keyup="_keyupHandler"
+              on-focus="_onInputFocus"
               tabindex="0"
               placeholder="[[placeholder]]">
               <template is="dom-if" if="[[loading]]">
@@ -253,10 +254,11 @@
         }
         return item.indexOf(this.$.itemInput.value) === 0;
       },
-
+      _onInputFocus: function() {
+        this.async(this._fireInputChangedEvent, 300);
+      },
       _updateDropdown: function() {
         if (this.suggestions === undefined || (this.suggestions.length === 0 && !this.loading)) {
-          //this._hideDropdown();
           this.$.menu.close();
         } else {
           this.$.menu.open();
