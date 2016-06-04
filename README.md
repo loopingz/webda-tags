@@ -1,5 +1,7 @@
 ![](http://webda.io/images/touch/icon-128x128.png)
 
+[![Build Status](https://travis-ci.org/loopingz/webda-tags.svg?branch=master)](https://travis-ci.org/loopingz/webda-tags)
+
 # \<webda-tags\>
 
 JSON Schema display components for [Webda.io](http://github.com/loopingz/webda.git) framework
