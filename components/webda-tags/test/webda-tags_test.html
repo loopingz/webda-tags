@@ -1,0 +1,95 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>webda-tags test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../webda-tags.html">
+    <link rel="import" href="../webda-tag-item.html">
+    <link rel="import" href="../webda-tags-list.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <webda-tags></webda-tags>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="tags-list">
+      <template>
+        <webda-tags-list></webda-tags-list>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="tag-item">
+      <template>
+        <webda-tag-item></webda-tag-item>
+      </template>
+    </test-fixture>
+    <script>
+      suite('webda-tags', function() {
+
+        test('instantiating the element works', function() {
+          let element = fixture('basic');
+          assert.equal(element.is, 'webda-tags');
+        });
+
+      });
+      suite('webda-tags-list', function() {
+
+        test('instantiating the element works', function(done) {
+          let list = fixture('tags-list');
+          assert.equal(list.is, 'webda-tags-list');
+          list.tags = ["Test", "Test2"];
+          flush(function() {
+            let listItems = Polymer.dom(list.root).querySelectorAll('webda-tag-item');
+            assert.equal(list.tags.length, listItems.length);
+            done();
+          });
+        });
+
+        test('remove one tag', function(done) {
+          let list = fixture('tags-list');
+          assert.equal(list.is, 'webda-tags-list');
+          list.tags = ["Test", "Test2"];
+          flush(function() {
+            listItems = Polymer.dom(list.root).querySelectorAll('webda-tag-item');
+            assert.equal(2, listItems.length);
+            listItems[0]._removeItem();
+            flush( function() {
+              listItems = Polymer.dom(list.root).querySelectorAll('webda-tag-item');
+              assert.equal(1, listItems.length);
+              done();
+            });
+          });
+        });
+
+      });
+      suite('webda-tag-item', function() {
+
+        test('instantiating the element works', function() {
+          let element = fixture('tag-item');
+          assert.equal(element.is, 'webda-tag-item');
+        });
+        test('verify the event on remove', function() {
+          let element = fixture('tag-item');
+          let eventTrigger = false;
+          element.enableRemove = false;
+          element.addEventListener('webda-tags-remove-item', function() {
+            eventTrigger = true;
+          });
+          element._removeItem();
+          assert.equal(eventTrigger, false);
+          element.enableRemove = true;
+          element._removeItem();
+          assert.equal(eventTrigger, true);
+        });
+      });
+    </script>
+  </body>
+</html>

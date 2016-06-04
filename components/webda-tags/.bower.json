@@ -1,0 +1,34 @@
+{
+  "name": "webda-tags",
+  "description": "A tag selecter component",
+  "main": "webda-tags.html",
+  "keywords": [
+    "web-components",
+    "webda"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-input": "~1.1.11",
+    "paper-item": "~1.2.1",
+    "paper-menu": "~1.2.2",
+    "paper-spinner": "~1.2.0",
+    "iron-dropdown": "PolymerElements/iron-dropdown#~1.4.1"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/loopingz/webda-tags",
+  "_release": "d5de6bb422",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "d5de6bb422cffeacd5d1d7fcc657572d935649c9"
+  },
+  "_source": "git://github.com/loopingz/webda-tags.git",
+  "_target": "master",
+  "_originalSource": "loopingz/webda-tags",
+  "_direct": true
+}

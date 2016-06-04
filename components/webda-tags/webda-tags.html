@@ -1,0 +1,385 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="webda-tags-list.html">
+<dom-module id="webda-tags">
+  <style is="custom-style" include="shared-styles"></style>
+  <style type="text/css" media="screen">
+    ul {
+        margin: 0;
+        padding: 0;
+        padding-top: 10px;
+        list-style: none;
+    }
+    ul#item_list {
+        display: block;
+        border-radius: 4px;
+    }
+    ul#item_list > li {
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        width: 100%;
+    }
+    ul#item_list > li:not(#item_entry) {
+        margin: 4px;
+        padding: 6px 10px 3px 3px;
+        border: 1px solid #ccd5e4;
+        border-radius: 4px;
+        background-color: #f0f0ff;
+        background-color: #eff2f7;
+        font-size: 11pt;
+        color: #000000;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        cursor: default;
+    }
+    ul#item_list > li > a {
+        width: 7px;
+        height: 7px;
+        display: block;
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        border: 1px solid #ff8888;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 6px;
+        font-weight: bolder;
+        color: #ff8888;
+        text-align: center;
+        text-decoration: none;
+        line-height: 7px;
+        cursor: pointer;
+    }
+    ul#item_list > li > a::after {
+        content: 'X';
+    }
+    #item_entry {
+        position: relative;
+    }
+    #item_entry > div {
+        width: 100%;
+        display: inline;
+        box-sizing: border-box;
+    }
+    #item_entry > div > span {
+        min-width: 40px;
+        display: inline-block;
+        font-size: 11pt;
+        line-height: 150%;
+        vertical-align: middle;
+    }
+    #item_entry > div > span:focus {
+        outline-style: none;
+    }
+    .dropdown-content {
+      width: 100%;
+    }
+    ::content label,
+    ::content .paper-input-label {
+      font: inherit;
+      font-size: 12px !important;
+      color: var(--paper-input-container-color, --secondary-text-color);
+
+      @apply(--paper-font-common-nowrap);
+      @apply(--paper-font-subhead);
+      @apply(--paper-input-container-label);
+    }
+    :host([focused]) label {
+      color: var(--default-primary-color);
+    }
+    /deep/ .floated-label-placeholder {
+      display: none;
+    }
+    paper-spinner {
+      height: 20px;
+      width: 20px;
+      --paper-spinner-stroke-width: 2px;
+    }
+  </style>
+  <template>
+      <ul id="item_list" style="width: {{options.box_width}};">
+        <label hidden$="[[!label]]">[[label]]</label>
+          <template is="dom-if" if="[[multiple]]">
+            <webda-tags-list tags="[[value]]"></webda-tags-list>
+          </template>
+          
+          <li id="item_entry">
+            <paper-input id="itemInput"
+              contenteditable="true"
+              on-keydown="_keydownHandler"
+              on-keyup="_keyupHandler"
+              tabindex="0"
+              placeholder="[[placeholder]]">
+              <template is="dom-if" if="[[loading]]">
+                <paper-spinner alt="Loading results" active="[[loading]]" suffix></paper-spinner>
+              </template>
+            </paper-input>
+            <iron-dropdown id="menu" no-auto-focus vertical-offset=40>
+              <paper-menu id="suggestionDropdown" class="dropdown-content">
+                <template id="dropdownContent" is="dom-repeat" filter="_suggestionFilter" items="{{suggestions}}">
+                  <paper-item on-tap="_suggestionTapped" value="{{item}}">{{item}}</paper-item>
+                </template>
+              </paper-menu>
+            </iron-dropdown>
+          </li>
+          
+      </ul>
+  </template>
+
+  <script>
+    /**
+     * webda-tags allow you to display and play with tags
+     * It was based and inspired by another tags project
+     * https://github.com/cheonhyangzhang/paper-tags-input/
+     *
+     * @demo
+     */
+    Polymer({
+      is: 'webda-tags',
+      properties: {
+        /**
+         * Suggestions to display in the menu
+         */
+        suggestions: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+        /**
+         * Current value
+         */
+        value: {
+          type: Object
+        },
+        /**
+         * True when loading
+         */
+        loading: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Asynchronous suggestions
+         */
+        asyncSuggestions: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Allow multiple selection
+         */
+        multiple: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Allow creation
+         */
+        allowCreate: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Allow space inside tag, if not then add item on space
+         */
+        allowSpace: {
+          type: Boolean,
+          value: false
+        },
+      },
+      // Fires when the "<webda-tags>" has been fully prepared
+      ready: function() {
+        if (this.multiple) {
+          if (this.value === undefined) {
+            this.value = [];
+          }
+        } else {
+          if (this.value) {
+            this.$.itemInput.value = this.value;
+          }
+        }
+      },
+
+      _suggestionTapped: function(event) {
+        this._addTag(event.target.value);
+      },
+
+      _addTag: function(item) {
+        this.$.suggestionDropdown.selected = undefined;
+        if (this.multiple) {
+          if (this.value.indexOf(item) < 0) {
+            this.push('value',item);  
+          }
+          this.$.itemInput.value = '';
+          this.$.itemInput.invalid = false;
+        } else {
+          this.value = item;
+          this.$.itemInput.invalid = false;
+          this.$.itemInput.value = item;
+        }
+        this._resetSuggestions();
+        this.$.menu.close();
+      },
+      _suggestionsFilter: function() {
+        var result = [];
+        for (var prop in this.suggestions) {
+          if (this._suggestionFilter(this.suggestions[prop])) {
+            result.push(this.suggestions[prop]);
+          }
+        }
+        return result;
+      },
+      _suggestionsCount: function() {
+        var i = 0;
+        for (var prop in this.suggestions) {
+          if (this._suggestionFilter(this.suggestions[prop])) {
+            i++;
+          }
+        }
+        return i;
+      },
+      _suggestionFilter: function(item) {
+        if (this.multiple && this.value.indexOf(item) >= 0) {
+          return false;
+        }
+        if (this.$.itemInput.value.length === 0) {
+          return true;
+        }
+        return item.indexOf(this.$.itemInput.value) === 0;
+      },
+
+      _updateDropdown: function() {
+        if (this.suggestions === undefined || (this.suggestions.length === 0 && !this.loading)) {
+          //this._hideDropdown();
+          this.$.menu.close();
+        } else {
+          this.$.menu.open();
+        }
+        this._resetSuggestions();
+      },
+
+      _keydownHandler: function(event) {
+        switch (event.keyCode) {
+          case 8:  // backspace
+            if (this.$.itemInput.value.length === 0 && this.value.length > 0) {
+              this.pop('value');
+            }
+            this._updateDropdown();
+            break;
+
+          case 32:  // spacebar
+            if (this.allowSpace === true) {
+              break;
+            }
+            /* falls through */
+          case 13:  // enter
+            var activeSuggestion = this.$.suggestionDropdown.selectedItem;
+            if (activeSuggestion) {
+              this._addTag(activeSuggestion.value);
+            } else if ((this.allowCreate === true && this.$.itemInput.value.length > 0)) {
+              this._addTag(this.$.itemInput.value);
+            } else {
+              var suggestions = this._suggestionsFilter();
+              if (suggestions.length === 1) {
+                this._addTag(suggestions[0]);
+              }
+            }
+            event.preventDefault();
+            break;
+
+          case 27:  // escape
+            if (this.allowCreate === true || this.suggestions.length > 0) {
+              this._resetSuggestions();
+              event.preventDefault();
+            }
+            break;
+
+          case 38:  // up arrow
+            if (this.$.suggestionDropdown.selected === 0) {
+              this.$.suggestionDropdown.selected = undefined;
+            }
+            this.$.suggestionDropdown.selectPrevious();
+            break;
+
+          case 40:  // down arrow
+            if (this.$.suggestionDropdown.selectedItem === undefined) {
+              this.$.suggestionDropdown.selected = 0;
+              break;
+            }
+            this.$.suggestionDropdown.selectNext();
+            break;
+        }
+      },
+      _keyupHandler: function(event) {
+        var inputChanged = true;
+        switch (event.keyCode) {
+
+          case 9:  // tab
+          case 13:  // enter
+          case 16:  // shift
+          case 17:  // ctrl
+          case 18:  // alt
+          case 27:  // escape
+          case 37:  // left arrow
+          case 38:  // up arrow
+          case 39:  // right arrow
+          case 40:  // down arrow
+            inputChanged = false;
+            break;
+        }
+
+        if (inputChanged === true) {
+          this._fireInputChangedEvent();
+        }
+      },
+
+      _fireInputChangedEvent: function() {
+        if (this.asyncSuggestions) {
+          this.loading = true;
+          this.suggestions = [];
+          this.fire('webda-tags-suggestions-update', this.$.itemInput.value);
+        } else {
+          if (!this.allowCreate) {
+            if (this.multiple) {
+              this.$.itemInput.invalid = (this._suggestionsCount() === 0);
+            } else {
+              this.$.itemInput.invalid = (this.suggestions.indexOf(this.$.itemInput) < 0);
+            }
+          } else {
+            this.$.itemInput.invalid = false;
+          }
+          this.fire('input-changed', this.$.itemInput.value);
+        }
+        this._updateDropdown();
+      },
+
+      /**
+       * setSuggestions to use with asynchronous loading
+       *
+       * The component will send a 'webda-tags-suggestions-update' event so you can do the async works
+       * Then set the suggestions with this method
+       */
+      setSuggestions: function(suggestions) {
+        this.suggestions = suggestions;
+        this.loading = false;
+        if (!this.allowCreate) {
+          this.$.itemInput.invalid = (this._suggestionsCount() === 0);
+        }
+        this._updateDropdown();
+      },
+      _resetSuggestions: function() {
+        this.$.dropdownContent.render();
+        this.$.menu.refit();
+      },
+      _setFocus: function() {
+        this.$.itemInput.focus();
+      }
+    });
+  </script>
+</dom-module>
