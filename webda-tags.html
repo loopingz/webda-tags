@@ -78,7 +78,8 @@
            * Current value
            */
           value: {
-            type: Object
+            type: Object,
+            notify: true
           },
           /**
            * True when loading
@@ -132,6 +133,9 @@
       // Fires when the "<webda-tags>" has been fully prepared
       ready() {
         super.ready();
+        this.addEventListener('webda-tags-remove-item', (evt) => {
+          this.dispatchEvent( new CustomEvent('value-changed', {detail:this.value, bubbles: true, composed: true}));
+        });
         if (this.multiple) {
           if (this.value === undefined) {
             this.value = [];
@@ -160,6 +164,7 @@
           this.$.itemInput.invalid = false;
           this.$.itemInput.value = item;
         }
+        this.dispatchEvent( new CustomEvent('value-changed', {detail:this.value, bubbles: true, composed: true}));
         this._resetSuggestions();
         this.$.menu.close();
       }
