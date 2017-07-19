@@ -7,7 +7,7 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
 <!--
 webda-tag-item is a tag element used by webda-tags to show tags with a closed button.
 
@@ -16,133 +16,81 @@ webda-tag-item is a tag element used by webda-tags to show tags with a closed bu
 @demo
 -->
 <dom-module id="webda-tag-item">
-
-  <style>
-    :host {
-      display: block;
-      box-sizing: border-box;
-      font-family: 'Roboto', 'Noto', sans-serif;
-    }    
-    .tag-value{
-      margin-top: 11px;     
-    }
-    .tag-item-container{
-      background-color: var(--light-primary-color);
-      border-radius: 20px;
-      float:left;
-      margin-left:6px;
-      margin-bottom:3px;
-      padding-left:17px;
-    }
-    
-    .large{
-      font-size:18px;
-    }
-   
-    .large paper-icon-button::shadow #icon{
-        width: 22px;
-        height: 22px;
-    }
-
-    .medium{
-      font-size:14px;
-    }
-    .medium.tag-item-container {
-      height: 34px;
-    }
-    .medium paper-icon-button::shadow #icon{
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        font-family: 'Roboto', 'Noto', sans-serif;
+      }    
+      .tag-value{
+        margin-top: 11px;    
+        font-size:14px;
+        @apply --webda-tag-item-value; 
+      }
+      .tag-item-container {
+        background-color: var(--light-primary-color);
+        border-radius: 20px;
+        float:left;
+        margin-left:6px;
+        margin-bottom:3px;
+        padding-left:17px;
+        height: 34px;
+        @apply --webda-tag-item-container;
+      }
+      --paper-icon-button: {
         width: 18px;
         height: 18px;
-    }
-    .small{
-      font-size:12px;
-    }
-    .small paper-icon-button::shadow #icon{
-        width: 14px;
-        height: 14px;
-    }
+        --iron-icon-height: 18px;
+        --iron-icon-width: 18px;
+        @apply --webda-tag-item-button;
+      };
 
-
-  </style>
-  <template>
-      <div style$="{{_containerColor(tagColor, fontColor)}}" class$="{{_containerClass(size)}}">
-        <span class="tag-value">{{value}}</span>
-        <template is="dom-if" if="{{!disableRemove}}">
-          <paper-icon-button on-tap="_removeItem" icon="icons:cancel"></paper-icon-button>
-        </template>
-        <template is="dom-if" if="{{disableRemove}}">
-          <paper-icon-button style="width:0px;visibility:hidden;" on-tap="remove" icon="icons:cancel"></paper-icon-button>
-        </template>
-      </div>
+    </style>
+    <div class="tag-item-container">
+      <span class="tag-value">{{value}}</span>
+      <template is="dom-if" if="{{!disableRemove}}">
+        <paper-icon-button on-tap="_removeItem" icon="icons:cancel"></paper-icon-button>
+      </template>
+      <template is="dom-if" if="{{disableRemove}}">
+        <paper-icon-button style="width:0px;visibility:hidden;" on-tap="remove" icon="icons:cancel"></paper-icon-button>
+      </template>
+    </div>
   </template>
 
 </dom-module>
 
 <script>
-  Polymer({
-    is: 'webda-tag-item',
-    properties: {
-      /**
-      * index of the tag
-      */
-      index: Number,
-      /**
-      * size of the tags, possible values: small, medium, large
-      */
-      size: {
-        type: String,
-        value: 'medium'
-      },
-      /**
-      * CSS color of tag
-      */
-      tagColor: String, 
-      /**
-      * CSS color of text and remove button
-      */
-      fontColor: String, 
-      /**
-      * Boolean flag to indicate if enable remove operation
-      */
-      disableRemove: {
-        type: Boolean,
-        value: false
-      },
-      /**
-      * value of the tag
-      */
-      value: String
-    },
-    /**
-     * _containerColor is the internal method to compute background style
-     *
-     */
-    _containerColor: function(tagColor, fontColor) {
-      var styles = [];
-      if (tagColor !== undefined) {
-        styles.push('background-color:' + tagColor);
+  class WebdaTagItem extends Polymer.Element {
+    static get is() { return 'webda-tag-item'; }
+    static get properties() {
+      return {
+        /**
+        * index of the tag
+        */
+        index: Number,
+        /**
+        * Boolean flag to indicate if enable remove operation
+        */
+        disableRemove: {
+          type: Boolean,
+          value: false
+        },
+        /**
+        * value of the tag
+        */
+        value: String
       }
-      if (fontColor !== undefined) {
-        styles.push('color:' + fontColor);
-      }
-      return styles.join(';');
-    },
-    /**
-     * _containerClass is the internal method to compute size css name
-     *
-     */
-    _containerClass: function(size) {
-      return size + ' tag-item-container';
-    },
+    }
     /**
      * _removeItem is the internal method to remove a tag from the tags list
      */
-    _removeItem: function() {
+    _removeItem() {
       if (this.enableRemove === false) {
         return;
       }
-      this.fire('webda-tags-remove-item', this.value);
+      this.dispatchEvent( new CustomEvent('webda-tags-remove-item', {detail:this.value, bubbles: true, composed: true}));
     }
-
-  });
+  }
+  window.customElements.define(WebdaTagItem.is, WebdaTagItem);
 </script>

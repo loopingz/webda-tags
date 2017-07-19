@@ -7,7 +7,7 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="webda-tag-item.html">
 <!--
 webda-tag-item is a tag element used by webda-tags to show tags with a closed button.
@@ -27,50 +27,54 @@ webda-tag-item is a tag element used by webda-tags to show tags with a closed bu
 </dom-module>
 
 <script>
-  Polymer({
-    is: 'webda-tags-list',
-    properties: {
-      /**
-      * size of the tags, possible values: small, medium, large
-      */
-      size: {
-        type: String,
-        value: 'medium'
-      },
-      /**
-      * CSS color of tag
-      */
-      tagColor: String, 
-      /**
-      * CSS color of text and remove button
-      */
-      fontColor: String, 
-      /**
-      * Boolean flag to indicate if enable remove operation
-      */
-      disableRemove: {
-        type: Boolean,
-        value: false
-      },
-      /**
-      * value of the tags
-      */
-      tags: {
-        type: Array,
-        notify: true
-      },
-    },
-    ready: function() {
+  class WebdaTagsList extends Polymer.Element {
+    static get is() { return 'webda-tags-list'; }
+    static get properties() {
+      return {
+        /**
+        * size of the tags, possible values: small, medium, large
+        */
+        size: {
+          type: String,
+          value: 'medium'
+        },
+        /**
+        * CSS color of tag
+        */
+        tagColor: String, 
+        /**
+        * CSS color of text and remove button
+        */
+        fontColor: String, 
+        /**
+        * Boolean flag to indicate if enable remove operation
+        */
+        disableRemove: {
+          type: Boolean,
+          value: false
+        },
+        /**
+        * value of the tags
+        */
+        tags: {
+          type: Array,
+          notify: true
+        },
+      }
+    }
+    ready() {
+      super.ready();
       this.addEventListener('webda-tags-remove-item', function(evt) {
         this._removeTag(evt.detail);
       });
-    },
-    _removeTag: function(item) {
+    }
+    _removeTag(item) {
       var index = this.tags.indexOf(item);
       if (index < 0) {
         return;
       }
       this.splice('tags',index, 1);
-    },
-  });
+    }
+  }
+  window.customElements.define(WebdaTagsList.is, WebdaTagsList);
 </script>
